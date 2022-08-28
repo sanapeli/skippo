@@ -1,0 +1,212 @@
+
+.invisible {
+	visibility:hidden;
+}
+
+
+body, html {
+	background-color:black;
+	color:#FFFF88;
+	font:35px verdana;
+}
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+
+
+.noselect {
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+.card {
+	border-radius: 6px;
+	margin:3px;
+	text-align:center;
+	display:inline-block;
+	background-image:url('svg_cards/2_of_clubs.svg');
+	background-size: 100% 100%;
+	cursor:pointer;
+	min-width:80px;
+	min-height:120px;
+	font-size:50px;
+}
+
+.card.joker {
+
+}
+
+
+.card:hover {
+	background-color:#FF0000;
+}
+
+
+.card.empty {
+	background-color:rgba(166,100,0, 0.15);
+	border-color:rgba(255,255,128, 0.2);
+	cursor:auto;
+}
+
+.card.empty:hover {
+	
+}
+
+
+
+
+#game {
+	text-align:right;
+	padding:10px 0px 0px 5px;
+	
+	background: rgb(27,48,110);
+	
+	background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(101,0,177,1) 25%, rgba(255,0,0,1) 50%, rgba(112,0,0,1) 75%, rgba(0,0,0,1) 100%);
+	
+	background-size: 100% 50%;
+	background-position: 50% 50%;
+	
+	//animation: gradient 10s ease infinite;
+}
+
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 0%;
+	}
+	100% {
+		background-position: 0% -300%;
+	}
+}
+
+.button {
+	border:1px solid #3d499b;
+	border-radius: 6px;
+	margin:1px;
+	padding:2px 15px 6px 15px;
+	//text-transform:uppercase;
+	text-align:center;
+	display:inline-block;
+	background-color:#0d1940;
+	cursor:pointer;
+	color:#FFFFFF;
+}
+
+.button:hover {
+	background-color:#1b3074;
+}
+
+/* has to come after hover or it will have hover effect */
+.button.disabled {
+	border:1px solid #0d196b;
+	background-color:black;
+	color:#444444;
+}
+
+.cardbox {
+	min-height:80px;
+}
+
+
+
+
+
+.hint_blink1 {
+	animation: hint_blinker1 0.1s linear infinite;
+	animation-iteration-count: 10;
+}
+@keyframes hint_blinker1 {  
+	50% {
+		opacity: 0;
+		color:#0000FF;
+		background-color:rgba(0,0,255,0.6);
+		border-color:#0000FF;
+
+	}
+}
+
+
+.hint_blink2 {
+	animation: hint_blinker2 0.1s linear infinite;
+	animation-iteration-count: 17;
+}
+@keyframes hint_blinker2 {  
+	50% {
+		opacity: 0;
+
+		color:#FFFF00;
+		background-color:rgba(255,255,0,1);
+		border-color:#FFFF00;
+		
+	}
+}
+
+
+.hint_blink3 {
+	animation: hint_blinker3 0.1s linear infinite;
+	animation-iteration-count: 25;
+}
+@keyframes hint_blinker3 {  
+	50% {
+		opacity: 0;
+
+		color:#FFFFFF;
+		background-color:rgba(255,255,255,0.6);
+		border-color:#FFFFFF;
+	}
+}
+
+
+
+
+.scoreblink {
+	animation: score_blinker 0.1s ease-out;
+	animation-iteration-count: 7;
+	animation-fill-mode: forwards;
+}
+
+@keyframes score_blinker {  
+	0% {
+		opacity: 0;
+		color:#FFFF00;
+	}
+	50% {
+		opacity: 1;
+		color:#FFFF00;
+	}
+	100% {
+		opacity: 0;
+		color:#FF0000;
+	}
+}
+
+
+.completed_blink {
+	animation: completed_blinker 0.1s ease-out;
+	animation-iteration-count: 7;
+	animation-fill-mode: forwards;
+}
+
+@keyframes completed_blinker {  
+	0% {
+		opacity: 0;
+		color:#FF00FF;
+	}
+	100% {
+		opacity: 1;
+		color:#FFFF00;
+	}
+}
+
+
+
