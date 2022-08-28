@@ -37,8 +37,8 @@ html, body {
 	background-image:url('svg_cards/2_of_clubs.svg');
 	background-size: 100% 100%;
 	cursor:pointer;
-	min-width:60px;
-	min-height:88px;
+	min-width:70px;
+	min-height:100px;
 	font-size:50px;
 }
 
