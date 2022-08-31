@@ -53,3 +53,92 @@ function getTimeMillis(){
 	var d = new Date();
 	return d.getTime();
 }
+
+
+
+var encoder = new TextEncoder("ascii");
+var decoder = new TextDecoder("ascii");
+var base64Table = encoder.encode('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=');
+
+function toBase64(dataArr){
+    var padding = dataArr.byteLength % 3;
+    var len = dataArr.byteLength - padding;
+    padding = padding > 0 ? (3 - padding) : 0;
+    var outputLen = ((len/3) * 4) + (padding > 0 ? 4 : 0);
+    var output = new Uint8Array(outputLen);
+    var outputCtr = 0;
+    for(var i=0; i<len; i+=3){              
+        var buffer = ((dataArr[i] & 0xFF) << 16) | ((dataArr[i+1] & 0xFF) << 8) | (dataArr[i+2] & 0xFF);
+        output[outputCtr++] = base64Table[buffer >> 18];
+        output[outputCtr++] = base64Table[(buffer >> 12) & 0x3F];
+        output[outputCtr++] = base64Table[(buffer >> 6) & 0x3F];
+        output[outputCtr++] = base64Table[buffer & 0x3F];
+    }
+    if (padding == 1) {
+        var buffer = ((dataArr[len] & 0xFF) << 8) | (dataArr[len+1] & 0xFF);
+        output[outputCtr++] = base64Table[buffer >> 10];
+        output[outputCtr++] = base64Table[(buffer >> 4) & 0x3F];
+        output[outputCtr++] = base64Table[(buffer << 2) & 0x3F];
+        output[outputCtr++] = base64Table[64];
+    } else if (padding == 2) {
+        var buffer = dataArr[len] & 0xFF;
+        output[outputCtr++] = base64Table[buffer >> 2];
+        output[outputCtr++] = base64Table[(buffer << 4) & 0x3F];
+        output[outputCtr++] = base64Table[64];
+        output[outputCtr++] = base64Table[64];
+    }
+    
+    var ret = decoder.decode(output);
+    output = null;
+    dataArr = null;
+    return ret;
+}
+
+
+var output = "";
+
+function generate_images(){
+
+	output = "";
+	
+	let imgs = [];	
+	imgs.push(["backside", "back"]);
+	imgs.push(["joker", "joker"]);
+	for(let s = 1; s <= 4; s++){
+		for(let i = 1; i <= 13; i++){
+			let card_id = s+"_"+i;
+			imgs.push(["c"+card_id, card_id]);
+		}
+	}
+
+	var request = new XMLHttpRequest();
+	(function loop(i, length) {
+		if (i>= length) {
+			return;
+		}
+		var file_name = imgs[i][1];
+		var css_name = imgs[i][0];
+		var url = "cards/"+file_name+".png";
+
+		request.open("GET", url, true);
+		request.responseType = "arraybuffer";
+		request.onreadystatechange = function() {
+			if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+				var arrayBuffer = request.response;
+				var byteArray = new Uint8Array(arrayBuffer);
+				let b64 = toBase64(byteArray);
+
+				output += "."+css_name+" { background-image:url('data:image/png;base64,"+b64+"'); }\r\n";
+
+				// update only at end:
+				if(i == imgs.length-1){
+					$("#output").text(output);
+				}
+				
+				loop(i + 1, length);
+			}
+		}
+		request.send();
+	})(0, imgs.length);
+}
+

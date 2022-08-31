@@ -43,12 +43,34 @@
 
 
 <script>
-let DECK = [];
-let DISCARD_DECK = [];
+
+
 let game_started = false;
-let selected_card = [];
-let ENEMY_CARDS = [];
-let MY_CARDS = [];
+let game_over = true;
+let prev_selection = {};
+
+function reset_selection(){
+	prev_selection = {deck_id: -1, card_index: -1, unique_id: -1, sub_index: -1, array_name: -1};
+}
+
+// -1 = who can play most cards starts.
+// 0 = my player
+// 1 = enemy player (AI)
+let turn = 0;
+
+
+let BOARD = {
+	'enemy_cards': [],
+	'enemy_slot': [],
+	'enemy_deck': [],
+	'play_slot': [],
+	'play_deck': [],
+	'play_deck_discard': [],
+	'my_slot': [],
+	'my_deck': [],
+	'my_cards': [],
+};
+
 
 
 function new_deck(total_jokers, kings_as_jokers){
@@ -87,33 +109,31 @@ function create_playing_deck(){
 
 // shuffle discard pile and add to game deck:
 function refill_deck(){
-	if(DISCARD_DECK.length > 0){
-		shuffleArray(DISCARD_DECK);
+	if(BOARD.discard_deck.length > 0){
+		shuffleArray(BOARD.discard_deck);
 		// last item is first item, so reverse deck so we can add them in the end of the deck:
-		DECK.reverse();
-		DECK = DECK.concat(DISCARD_DECK);
+		BOARD.play_deck.reverse();
+		BOARD.play_deck = BOARD.play_deck.concat(BOARD.discard_deck);
 		// reverse back to original order with added cards at the start of array:
-		DECK.reverse();
-		DISCARD_DECK = [];
+		BOARD.play_deck.reverse();
+		BOARD.discard_deck = [];
 	}
 }
 
 function get_card_from_deck(){
 	let card = -1;
-	if(DECK.length == 0){
+	if(BOARD.play_deck.length == 0){
 		refill_deck();
 	}
-	if(DECK.length > 0){
-		card = DECK.pop();
+	if(BOARD.play_deck.length > 0){
+		card = BOARD.play_deck.pop();
 	}
 	return card;
 }
 
 
 
-function cards_to_discard_deck(cards){
-	DISCARD_DECK.concat(cards);
-}
+
 
 
 function set_deck_cards(deck_id, cards){
@@ -149,20 +169,32 @@ function set_deck_cards(deck_id, cards){
 		let card_id = cards[i];
 		let is_deck_class = "";
 		let deck_visible_class = "";
+		let is_deck = false;
+		let is_my_deck_class = "";
+		let is_play_deck_class = "";
 		if(card_id.length == 0){
 			card_id = "empty";
 		}
-		if(card_id == "playerdeck"){
-			card_id = "backside";
+		if(card_id == "enemydeck"){
+			card_id = "empty";
 			deck_visible_class = " deck_visible";
+			is_deck = true;
+		}
+		if(card_id == "mydeck"){
+			card_id = "empty";
+			deck_visible_class = " deck_visible";
+			is_deck = true;
+			is_my_deck_class = " my_deck";
 		}
 		if(card_id == "gamedeck"){
 			card_id = "backside";
+			is_deck = true;
+			is_play_deck_class = " play_deck";
 		}
-		if(card_id == "backside"){
+		if(is_deck){
 			is_deck_class = " is_deck";
 		}
-		$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+		$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
 	}
 }
 
@@ -174,175 +206,281 @@ function fill_deck(deck_id, cards){
 
 
 
-
-
-
-
 function new_game(){
-	DECK = create_playing_deck();
-	shuffleArray(DECK);
-	play_sound("shuffle");
-	
-	selected_card = [];
+	if(!game_over){
+		//return;
+	}
+	game_over = false;	
 	game_started = true;
 	
-	DISCARD_DECK = [];
+	play_sound("shuffle");
 	
-	ENEMY_CARDS = [];
-	MY_CARDS = [];
+	clear_board();
+
 	
-	console.log(DECK);
-	console.log(DECK);
+	BOARD.play_deck = create_playing_deck();
+	shuffleArray(BOARD.play_deck);
 	
-	for(let i = 0; i < 5; i++){
+	reset_selection();
+	
+
+	// fill decks:
+	for(let i = 0; i < 30; i++){
 		let card1 = get_card_from_deck();
-		ENEMY_CARDS.push(card1);
+		BOARD.enemy_deck.push(card1);
 		let card2 = get_card_from_deck();
-		MY_CARDS.push(card2);
+		BOARD.my_deck.push(card2);
 	}
 	
-	fill_deck("enemy_cards", ENEMY_CARDS);
-	fill_deck("enemy_slot", ["", "", "", "", "playerdeck"]);
+	// fill hands:
+	for(let i = 0; i < 5; i++){
+		let card1 = get_card_from_deck();
+		BOARD.enemy_cards.push(card1);
+		let card2 = get_card_from_deck();
+		BOARD.my_cards.push(card2);
+	}
+	
+	console.log(BOARD);
+	
+	fill_deck("enemy_cards", BOARD.enemy_cards);
+	fill_deck("enemy_slot", ["", "", "", "", "enemydeck"]);
 	fill_deck("play_slot", ["", "", "", "", "gamedeck"]);
-	fill_deck("my_slot", ["", "", "", "", "playerdeck"]);
-	fill_deck("my_cards", MY_CARDS);
+	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
+	fill_deck("my_cards", BOARD.my_cards);
 }
 
 
 
 function clear_game(){
-	DECK = [];
-	DISCARD_DECK = [];
+
 	game_started = false;
-	selected_card = [];
+	reset_selection();
 	
-	ENEMY_CARDS = ["", "", "", "", ""];
-	MY_CARDS    = ["", "", "", "", ""];
+	clear_board();
 	
-	fill_deck("enemy_cards", ENEMY_CARDS);
-	fill_deck("enemy_slot", ["", "", "", "", "playerdeck"]);
+	fill_deck("enemy_cards", ["", "", "", "", ""]);
+	fill_deck("enemy_slot", ["", "", "", "", "enemydeck"]);
 	fill_deck("play_slot", ["", "", "", "", "gamedeck"]);
-	fill_deck("my_slot", ["", "", "", "", "playerdeck"]);
-	fill_deck("my_cards", MY_CARDS);
+	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
+	fill_deck("my_cards", ["", "", "", "", ""]);
 }
 
 
 
+function play_enemy_turn(){
 
-
-var encoder = new TextEncoder("ascii");
-var decoder = new TextDecoder("ascii");
-var base64Table = encoder.encode('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=');
-
-function toBase64(dataArr){
-    var padding = dataArr.byteLength % 3;
-    var len = dataArr.byteLength - padding;
-    padding = padding > 0 ? (3 - padding) : 0;
-    var outputLen = ((len/3) * 4) + (padding > 0 ? 4 : 0);
-    var output = new Uint8Array(outputLen);
-    var outputCtr = 0;
-    for(var i=0; i<len; i+=3){              
-        var buffer = ((dataArr[i] & 0xFF) << 16) | ((dataArr[i+1] & 0xFF) << 8) | (dataArr[i+2] & 0xFF);
-        output[outputCtr++] = base64Table[buffer >> 18];
-        output[outputCtr++] = base64Table[(buffer >> 12) & 0x3F];
-        output[outputCtr++] = base64Table[(buffer >> 6) & 0x3F];
-        output[outputCtr++] = base64Table[buffer & 0x3F];
-    }
-    if (padding == 1) {
-        var buffer = ((dataArr[len] & 0xFF) << 8) | (dataArr[len+1] & 0xFF);
-        output[outputCtr++] = base64Table[buffer >> 10];
-        output[outputCtr++] = base64Table[(buffer >> 4) & 0x3F];
-        output[outputCtr++] = base64Table[(buffer << 2) & 0x3F];
-        output[outputCtr++] = base64Table[64];
-    } else if (padding == 2) {
-        var buffer = dataArr[len] & 0xFF;
-        output[outputCtr++] = base64Table[buffer >> 2];
-        output[outputCtr++] = base64Table[(buffer << 4) & 0x3F];
-        output[outputCtr++] = base64Table[64];
-        output[outputCtr++] = base64Table[64];
-    }
-    
-    var ret = decoder.decode(output);
-    output = null;
-    dataArr = null;
-    return ret;
 }
 
 
-var output = "";
 
-function generate_images(){
-
-	output = "";
+function move_card(cur){
+	let prev = prev_selection;
+	let from_key = prev.array_name;
+	let from = BOARD[from_key];
+	let to_key = cur.array_name;
+	let to = BOARD[to_key];
 	
-	let imgs = [];	
-	imgs.push(["backside", "back"]);
-	imgs.push(["joker", "joker"]);
-	for(let s = 1; s <= 4; s++){
-		for(let i = 1; i <= 13; i++){
-			let card_id = s+"_"+i;
-			imgs.push(["c"+card_id, card_id]);
-		}
+	let picked_card = -1;
+	
+	if(from_key == "my_slot"){
+		picked_card = BOARD[from_key][prev.sub_index].pop();
+	}else if(from_key == "my_deck"){
+		picked_card = BOARD[from_key].pop();
+	}else if(from_key == "play_slot"){
+		picked_card = BOARD[from_key][prev.sub_index].pop();
 	}
-
-	var request = new XMLHttpRequest();
-	(function loop(i, length) {
-		if (i>= length) {
-			return;
-		}
-		var file_name = imgs[i][1];
-		var css_name = imgs[i][0];
-		var url = "cards/"+file_name+".png";
-
-		request.open("GET", url, true);
-		request.responseType = "arraybuffer";
-		request.onreadystatechange = function() {
-			if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-				var arrayBuffer = request.response;
-				var byteArray = new Uint8Array(arrayBuffer);
-				let b64 = toBase64(byteArray);
-
-				output += "."+css_name+" { background-image:url('data:image/png;base64,"+b64+"'); }\r\n";
-
-				// update only at end:
-				if(i == imgs.length-1){
-					$("#output").text(output);
-				}
-				
-				loop(i + 1, length);
-			}
-		}
-		request.send();
-	})(0, imgs.length);
+	
+	if(to_key == "my_slot"){
+		BOARD[to_key][prev.sub_index].push(picked_card);
+	}else if(to_key == "my_deck"){
+		BOARD[to_key].push(picked_card);
+	}else if(to_key == "play_slot"){
+		BOARD[to_key][prev.sub_index].push(picked_card);
+	}
+	
+	console.log(BOARD);
+	
 }
-
-
-
-
 
 
 $(document).on("click", ".card", function(e){
-	
-	if($(this).hasClass("is_deck")){
-		console.log("is_deck");
+
+	if($(this).hasClass("play_deck")){
+		//console.log("play_deck");
 		new_game();
 	}else{
-		console.log("card");
-		if(selected_card.length > 0){
-			$("#"+selected_card[2]).removeClass("selected");
+		let clickable = false;
+		if($(this).data("deck") == "play_slot"){
+			clickable = true;
+		}
+		if($(this).data("deck") == "my_slot"){
+			clickable = true;
+		}
+		if($(this).data("deck") == "my_cards"){
+			clickable = true;
 		}
 		
-		let deck_id = $(this).data("deck");
-		let card_index = $(this).data("index");
-		let unique_id = deck_id+"_"+card_index;
-		selected_card = [deck_id, card_index, unique_id];
-		$(this).addClass("selected");
-		play_sound("click");
+		if(clickable){
+			if($(this).hasClass("my_deck")){
+				console.log("my_deck");
+			}else if($(this).hasClass("play_deck")){
+				console.log("play_deck");
+			}else{
+				console.log("card");
+			}
+			
+			if(prev_selection.deck_id != "-1"){
+				$("#"+prev_selection.unique_id).removeClass("selected");
+			}
+			
+			
+			
+			let deck_id = $(this).data("deck");
+			console.log("BOARD[deck_id] = ");
+			console.log(BOARD[deck_id]);
+			
+			let card_index = $(this).data("index");
+			let unique_id = deck_id+"_"+card_index;
+			
+			let sub_index = 0;
+			let array_name = "";
+			
+			let valid_move = false;
+			
+			if(deck_id == "my_slot"){
+				if(card_index <= 3){
+					array_name = "my_slot";
+					sub_index = BOARD.my_slot[card_index].length-1;
+					if(sub_index >= 0){
+						valid_move = true;
+					}
+				}else{
+					array_name = "my_deck";
+					sub_index = BOARD.my_deck.length-1;
+					if(sub_index >= 0){
+						valid_move = true;
+					}
+				}
+			}else if(deck_id == "play_slot"){
+				if(card_index <= 3){
+					array_name = "play_slot";
+					sub_index = BOARD.play_slot[card_index].length-1;
+					if(sub_index >= 0){
+						valid_move = true;
+					}
+				}
+			}else if(deck_id == "my_cards"){
+				array_name = "my_cards";
+				sub_index = BOARD.my_cards[card_index].length-1;
+				if(sub_index >= 0){
+					valid_move = true;
+					
+				}
+			}
+			
+			let cur_selection = {
+				'deck_id': deck_id, 
+				'card_index': card_index, 
+				'unique_id': unique_id, 
+				'sub_index': sub_index, 
+				'array_name': array_name,
+			};
+			
+			/*
+function clear_board(){
+	BOARD = {
+		'enemy_cards': [], // 5
+		'enemy_slot': [[],[],[],[]], // 4
+		'enemy_deck': [], // 30
+		'play_slot': [[],[],[],[]], // 4
+		'play_deck': [], // 95
+		'discard_deck': [], // 0-165
+		'my_slot': [[],[],[],[]], // 4
+		'my_deck': [], // 30
+		'my_cards': [], // 5
+	};
+}
+			*/
+			
+			/*
+			
+			let move_possible = false;
+			
+			function is_move_possible(cur_selection){
+				
+				let valid_prev_sel = false;
+				let valid_cur_sel = false;
+				
+				if(prev_selection.deck_id == "my_slot"){
+					if(prev_selection.card_index <= 3){
+						if(BOARD.my_slot[prev_selection.card_index].length > 0){
+							valid_prev_sel = true;
+						}
+					}else{
+						if(BOARD.my_deck.length > 0){
+							valid_prev_sel = true;
+						}
+					}
+				}
+				
+				if(cur_selection.deck_id == "my_slot"){
+					if(cur_selection.card_index <= 3){
+						if(BOARD.my_slot[cur_selection.card_index].length > 0){
+							valid_cur_sel = true;
+						}
+					}else{
+						if(BOARD.my_deck.length > 0){
+							valid_cur_sel = true;
+						}
+					}
+				}
+				
+				if(valid_prev_sel){
+				
+				}
+			}
+			*/
+			
+
+			// if valid selection previously:
+			if(valid_move){
+				console.log("valid_move");
+				move_card(cur_selection);
+				//BOARD[deck_id][card_index].push();
+			}else{
+				console.log("invalid_move");
+			}
+			
+			prev_selection = cur_selection;
+			console.log(prev_selection);
+			$(this).addClass("selected");
+			play_sound("click");
+			
+			
+			
+		}
 	}
-	console.log($(this).attr("id"));
+	
+	//console.log($(this).attr("id"));
 });
 
 
+
+
+
+function clear_board(){
+	BOARD = {
+		'enemy_cards': [], // 5
+		'enemy_slot': [[],[],[],[]], // 4
+		'enemy_deck': [], // 30
+		'play_slot': [[],[],[],[]], // 4
+		'play_deck': [], // 95
+		'discard_deck': [], // 0-165
+		'my_slot': [[],[],[],[]], // 4
+		'my_deck': [], // 30
+		'my_cards': [], // 5
+	};
+}
 
 
 
@@ -352,8 +490,6 @@ function update_ui(){
 
 	
 }
-
-
 
 
 
@@ -368,6 +504,10 @@ $(document).ready(function(){
 	clear_game();
 
 });
+
+
+
+
 
 </script>
 
