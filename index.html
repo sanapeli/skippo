@@ -26,7 +26,7 @@
 	<script src="helpers.js"></script>
 	
 	<!-- remember to increase xxxxxxxx and x when something changes in css. -->
-	<link type="text/css" href="style.css?xxxxxxxx=2" rel="Stylesheet" />
+	<link type="text/css" href="style.css?xxxxxxxx=3" rel="Stylesheet" />
 	<link type="text/css" href="cards_inline.css?x=1" rel="Stylesheet" />
 </head>
 <body>
@@ -82,7 +82,7 @@
 </style>
 
 
-<div id="game" class="noselect">
+<div id="game" class="noselect invisible">
 	<div class="row">
 		<div id="enemy_slot" class="cardbox"></div>
 		<div id="enemy_deck" class="deck"></div>
@@ -435,8 +435,21 @@ function clear_game(){
 	fill_deck("play_slot", ["", "", "", "", "playdeck"]);
 	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
 	fill_deck("my_cards", ["", "", "", "", ""]);
+	
+	center_game();
 }
 
+
+function center_game(){
+	let game_w = $("#game").outerWidth();
+	let game_h = $("#game").outerHeight();
+	let offset_x = (SCREEN_W-game_w)/2;
+	let offset_y = (SCREEN_H-game_h)/2;
+	
+	$("#game").css({"top": offset_y});
+	$("#game").css({"right": offset_x});
+	$("#game").removeClass("invisible");
+}
 
 
 function play_enemy_turn(){
