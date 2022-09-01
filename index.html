@@ -26,7 +26,7 @@
 	<script src="helpers.js"></script>
 	
 	<!-- remember to increase xxxxxxxx and x when something changes in css. -->
-	<link type="text/css" href="style.css?xxxxxxxx=3" rel="Stylesheet" />
+	<link type="text/css" href="style.css?xxxxxxxx=4" rel="Stylesheet" />
 	<link type="text/css" href="cards_inline.css?x=1" rel="Stylesheet" />
 </head>
 <body>
@@ -74,21 +74,38 @@
 }
 
 .handcards {
-	margin-right:42px;
+	max-width:335px;
+	position:relative;
 }
+
 .handcards .card {
-	
+	position:absolute;
+	top:0;
 }
+
+
+.handcards .card:nth-child(1) { right:0px; }
+.handcards .card:nth-child(2) { right:0px; }
+.handcards .card:nth-child(3) { right:0px; }
+.handcards .card:nth-child(4) { right:0px; }
+.handcards .card:nth-child(5) { right:0px; }
+
+
+.cardbank {
+	margin-right:128px;
+}
+
+
 </style>
 
 
 <div id="game" class="noselect invisible">
 	<div class="row">
-		<div id="enemy_slot" class="cardbox"></div>
-		<div id="enemy_deck" class="deck"></div>
+		<div id="enemy_slot" class="cardbox cardbank"></div>
 	</div>
 	<div class="row">
 		<div id="enemy_cards" class="cardbox handcards"></div>
+		<div id="enemy_deck" class="deck"></div>
 	</div>
 	<div class="row">
 		<div id="play_slot" class="cardbox"></div>
@@ -97,10 +114,11 @@
 	</div>
 	<div class="row">
 		<div id="my_cards" class="cardbox handcards"></div>
+		<div id="my_deck" class="deck"></div>
 	</div>
 	<div class="row">
-		<div id="my_slot" class="cardbox"></div>
-		<div id="my_deck" class="deck"></div>
+		<div id="my_slot" class="cardbox cardbank"></div>
+		
 	</div>
 </div>
 
@@ -311,6 +329,15 @@ function set_deck_cards(deck_id, cards){
 		i = 0;
 		$("#"+append_to).empty();
 		$("#"+append_to).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+	}
+	
+	// adjust handcards:
+	if(deck_id == "enemy_cards" || deck_id == "my_cards"){
+		let offset = 258;
+		$("#"+deck_id+" .card").each(function(elem){
+			$(this).css({"right": offset});
+			offset -= 64.666;
+		});
 	}
 
 }

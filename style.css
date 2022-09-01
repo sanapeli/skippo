@@ -42,6 +42,8 @@ html, body {
 	/* 80x116 is same aspect ratio as 200x290, and it gives whole numbers for dimensions */
 	min-width:80px;
 	min-height:116px;
+	
+	box-shadow: rgba(0, 0, 0, 0.7) 0px 0px 16px;
 }
 
 .card:first-child {
