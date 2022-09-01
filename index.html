@@ -52,6 +52,7 @@
 	min-height:116px;
 	min-width:116px;
 }
+
 .cardbox {
 	-border:1px solid red;
 	-background-color:rgba(255,255,255, 0.2);
@@ -84,15 +85,42 @@
 }
 
 
-.handcards .card:nth-child(1) { right:0px; }
-.handcards .card:nth-child(2) { right:0px; }
-.handcards .card:nth-child(3) { right:0px; }
-.handcards .card:nth-child(4) { right:0px; }
-.handcards .card:nth-child(5) { right:0px; }
-
 
 .cardbank {
 	margin-right:128px;
+}
+
+.cardslot {
+	position:relative;
+	
+	border-radius:3px;
+	margin-left:6px;
+	display:inline-block;
+	font-size:0;
+	
+	cursor:pointer;
+
+	min-width:80px;
+	min-height:260px;
+	
+	background-color:rgba(100,100,166, 0.16);
+	
+}
+
+.cardslot.top .card {
+	position:absolute;
+	bottom:0;
+	margin-left:0px;
+}
+.cardslot.bot .card {
+	position:absolute;
+	top:0;
+	margin-left:0px;
+}
+
+
+.cardslot .card:first-child {
+	margin-left:0px;
 }
 
 
@@ -101,7 +129,12 @@
 
 <div id="game" class="noselect invisible">
 	<div class="row">
-		<div id="enemy_slot" class="cardbox cardbank"></div>
+		<div id="enemy_slot" class="cardbox cardbank">
+			<div id="enemy_slot_0" class="cardslot top"></div>
+			<div id="enemy_slot_1" class="cardslot top"></div>
+			<div id="enemy_slot_2" class="cardslot top"></div>
+			<div id="enemy_slot_3" class="cardslot top"></div>
+		</div>
 	</div>
 	<div class="row">
 		<div id="enemy_cards" class="cardbox handcards"></div>
@@ -117,7 +150,12 @@
 		<div id="my_deck" class="deck"></div>
 	</div>
 	<div class="row">
-		<div id="my_slot" class="cardbox cardbank"></div>
+		<div id="my_slot" class="cardbox cardbank">
+			<div id="my_slot_0" class="cardslot bot"></div>
+			<div id="my_slot_1" class="cardslot bot"></div>
+			<div id="my_slot_2" class="cardslot bot"></div>
+			<div id="my_slot_3" class="cardslot bot"></div>
+		</div>
 		
 	</div>
 </div>
@@ -318,10 +356,26 @@ function set_deck_cards(deck_id, cards){
 			is_deck_class = " is_deck";
 			
 			console.log("append_to = "+append_to);
+			
+			
 			$("#"+append_to).empty();
 			$("#"+append_to).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+		
 		}else{
-			$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+			let is_enemy_slot = (deck_id.substring(0, 10) == "enemy_slot");
+			let is_my_slot = (deck_id.substring(0, 7) == "my_slot");
+			if(is_enemy_slot || is_my_slot){
+				let offset = i*20;
+				
+				if(is_enemy_slot){
+					$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"' style='bottom:"+offset+"px; left:0'></div>"));
+				}else{
+					$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"' style='top:"+offset+"px; left:0'></div>"));
+				}
+
+			}else{
+				$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+			}
 		}
 	}
 	
@@ -446,14 +500,48 @@ function new_game(){
 		BOARD.my_cards.push(card2);
 	}
 	
+	BOARD.enemy_slot = [];
+	BOARD.my_slot = [];
+	
+	for(let i = 0; i < 4; i++){
+		BOARD.enemy_slot.push([]);
+		BOARD.my_slot.push([]);
+	}
+	
+	// fill player slots (testing):
+	for(let i = 0; i < 4; i++){
+		let amount = 6;//ran(8+1)+1;
+		for(let p = 0; p < amount; p++){
+			let card1 = get_card_from_deck();
+			BOARD.enemy_slot[i].push(card1);
+			let card2 = get_card_from_deck();
+			BOARD.my_slot[i].push(card2);
+		}
+	}
+	
 	console.log(BOARD);
 	
 	fill_deck("enemy_cards", BOARD.enemy_cards);
-	fill_deck("enemy_slot", ["", "", "", "", "enemydeck"]);
+	fill_deck("enemy_deck", ["enemydeck"]);
+	
+	fill_deck("enemy_slot_0", BOARD.enemy_slot[0]);
+	fill_deck("enemy_slot_1", BOARD.enemy_slot[1]);
+	fill_deck("enemy_slot_2", BOARD.enemy_slot[2]);
+	fill_deck("enemy_slot_3", BOARD.enemy_slot[3]);
+	
 	fill_deck("play_slot", ["", "", "", "", "playdeck"]);
-	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
+	
+	fill_deck("my_slot_0", BOARD.my_slot[0]);
+	fill_deck("my_slot_1", BOARD.my_slot[1]);
+	fill_deck("my_slot_2", BOARD.my_slot[2]);
+	fill_deck("my_slot_3", BOARD.my_slot[3]);
+	
 	fill_deck("my_cards", BOARD.my_cards);
+	fill_deck("my_deck", ["mydeck"]);
 }
+
+
+
 
 
 
@@ -465,9 +553,9 @@ function clear_game(){
 	clear_board();
 	
 	fill_deck("enemy_cards", ["", "", "", "", ""]);
-	fill_deck("enemy_slot", ["", "", "", "", "enemydeck"]);
+	
 	fill_deck("play_slot", ["", "", "", "", "playdeck"]);
-	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
+
 	fill_deck("my_cards", ["", "", "", "", ""]);
 	
 	center_game();
