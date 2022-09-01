@@ -191,14 +191,14 @@ function new_deck(total_jokers, total_rulecards, kings_as_jokers){
 	for(let s = 1; s <= 4; s++){
 		for(let i = 1; i <= 13; i++){
 			if(i == 13 && kings_as_jokers){
-				deck.push("joker2");
+				deck.push("joker2"); // joker_king king_joker
 			}else{
 				deck.push("c"+s+"_"+i);
 			}
 		}
 	}
 	for(let i = 0; i < total_jokers; i++){
-		deck.push("joker2");
+		deck.push("joker1");
 	}
 	for(let i = 0; i < total_rulecards; i++){
 		deck.push("joker3");
