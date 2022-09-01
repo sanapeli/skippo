@@ -30,15 +30,13 @@ html, body {
 }
 
 .card {
-	border-radius: 4px;
-	margin:3px;
-	text-align:center;
+	margin-left:6px;
 	display:inline-block;
 	background-size: 100% 100%;
 	cursor:pointer;
-	min-width:70px;
-	min-height:100px;
-	font-size:50px;
+	/* 80x116 is same aspect ratio as 200x290, and it gives whole numbers for dimensions */
+	min-width:80px;
+	min-height:116px;
 }
 
 
@@ -55,6 +53,7 @@ html, body {
 }
 
 .card.empty {
+	border-radius:4px;
 	background-color:rgba(166,100,0, 0.15);
 	border-color:rgba(255,255,128, 0.2);
 }
@@ -64,6 +63,10 @@ html, body {
 	border-color:rgba(255,255,128, 0.4);
 }
 
+.card.is_deck {
+	transform: rotate(90deg);
+	margin-right:24px;
+}
 
 
 
@@ -115,9 +118,6 @@ html, body {
 	color:#444444;
 }
 
-.cardbox {
-	min-height:80px;
-}
 
 
 

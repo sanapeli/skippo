@@ -132,6 +132,7 @@ function generate_images(){
 
 				// update only at end:
 				if(i == imgs.length-1){
+					$("#output").show();
 					$("#output").text(output);
 				}
 				

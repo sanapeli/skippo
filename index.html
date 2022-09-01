@@ -25,18 +25,74 @@
 	<script src="sounds.js"></script>
 	<script src="helpers.js"></script>
 	
-	<link type="text/css" href="style.css?v=5" rel="Stylesheet" />
-	<link type="text/css" href="cards_inline.css?v=3" rel="Stylesheet" />
+	<!-- remember to increase versionx and v (both is easier) when something changes in css. -->
+	<link type="text/css" href="style.css?versionx=7" rel="Stylesheet" />
+	<link type="text/css" href="cards_inline.css?v=7" rel="Stylesheet" />
 </head>
 <body>
 
+<style>
+.row {
+	-border:1px solid blue;
+	-background-color:rgba(0,0,255, 0.1);
+	
+	display:block;
+	min-height:116px;
+}
+.deck {
+	-border:1px solid yellow;
+	-background-color:rgba(255,255,0, 0.1);
+	
+	display:inline-block;
+	min-height:116px;
+	min-width:116px;
+}
+.cardbox {
+	-border:1px solid red;
+	-background-color:rgba(255,255,255, 0.2);
+	
+	display:inline-block;
+	min-height:116px;
+}
+
+#discard_deck {
+	-background-color:yellow;
+
+	position:absolute;
+	min-height:116px;
+	min-width:116px;
+}
+
+#discard_deck .card {
+	transform: rotate(0);
+}
+
+.handcards {
+	margin-right:42px;
+}
+
+</style>
 
 <div id="game" class="noselect">
-	<div id="enemy_cards" class="cardbox"></div>
-	<div id="enemy_slot" class="cardbox"></div>
-	<div id="play_slot" class="cardbox"></div>
-	<div id="my_slot" class="cardbox"></div>
-	<div id="my_cards" class="cardbox"></div>
+	<div class="row">
+		<div id="enemy_cards" class="cardbox handcards"></div>
+	</div>
+	<div class="row">
+		<div id="enemy_slot" class="cardbox"></div>
+		<div id="enemy_deck" class="deck"></div>
+	</div>
+	<div class="row">
+		<div id="play_slot" class="cardbox"></div>
+		<div id="discard_deck" class="deck"></div>
+		<div id="play_deck" class="deck"></div>
+	</div>
+	<div class="row">
+		<div id="my_slot" class="cardbox"></div>
+		<div id="my_deck" class="deck"></div>
+	</div>
+	<div class="row">
+		<div id="my_cards" class="cardbox handcards"></div>
+	</div>
 </div>
 
 <xmp id="output" style="font-size:9px; display:none"></xmp>
@@ -44,10 +100,28 @@
 
 <script>
 
+/*
+for(let i = 0; i < 100; i++){
+	let aspect = 200/290;
+	let new_h = 90+i;
+	let new_w = aspect*new_h;
+	console.log("h: "+new_h+" = w: "+new_w);
+}
+*/
 
+let cheats_enabled = true;
 let game_started = false;
 let game_over = true;
 let prev_selection = {};
+let source_exists = false;
+let cur_phase = 0; // 0 = play cards to play_slot, 1 = get new cards, 2 = put card to my_slot, 3 = wait other player.
+
+function next_phase(){
+	cur_phase++;
+	if(cur_phase > 3){
+		cur_phase = 0;
+	}
+}
 
 function reset_selection(){
 	prev_selection = {deck_id: -1, card_index: -1, unique_id: -1, sub_index: -1, array_name: -1};
@@ -164,6 +238,8 @@ function set_deck_cards(deck_id, cards){
 	
 	
 	$("#"+deck_id).empty();
+
+	
 	let i;
 	for(i = 0; i < cards.length; i++){
 		let card_id = cards[i];
@@ -172,6 +248,16 @@ function set_deck_cards(deck_id, cards){
 		let is_deck = false;
 		let is_my_deck_class = "";
 		let is_play_deck_class = "";
+		
+		let append_to = "";
+		if(card_id == "enemydeck"){
+			append_to = "enemy_deck";
+		}else if(card_id == "mydeck"){
+			append_to = "my_deck";
+		}else if(card_id == "playdeck"){
+			append_to = "play_deck";
+		}
+		
 		if(card_id.length == 0){
 			card_id = "empty";
 		}
@@ -186,22 +272,96 @@ function set_deck_cards(deck_id, cards){
 			is_deck = true;
 			is_my_deck_class = " my_deck";
 		}
-		if(card_id == "gamedeck"){
+		if(card_id == "playdeck"){
 			card_id = "backside";
 			is_deck = true;
 			is_play_deck_class = " play_deck";
 		}
 		if(is_deck){
 			is_deck_class = " is_deck";
+			
+			console.log("append_to = "+append_to);
+			$("#"+append_to).empty();
+			$("#"+append_to).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+		}else{
+			$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
 		}
-		$("#"+deck_id).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
 	}
+	
+	{
+		let append_to = "discard_deck";
+		let card_id = "c1_12";
+		let is_deck_class = " is_deck";
+		let deck_visible_class = " deck_visible";
+		let is_my_deck_class = "";
+		let is_play_deck_class = "";
+		let deck_id = "discard_deck";
+		i = 0;
+		$("#"+append_to).empty();
+		$("#"+append_to).append($("<div class='card "+card_id+is_deck_class+deck_visible_class+is_my_deck_class+is_play_deck_class+"' data-deck='"+deck_id+"' data-index='"+i+"' id='"+deck_id+"_"+i+"'></div>"));
+	}
+
 }
 
 function fill_deck(deck_id, cards){
 	set_deck_cards(deck_id, cards);
 }
 
+
+function visualize_board(){
+
+	
+	for(let deck_id in BOARD){
+		if(BOARD.hasOwnProperty(deck_id)){
+			let this_deck = BOARD[deck_id];
+			let show_top_card = true;
+			
+			// set settings:
+			if(deck_id == "enemy_cards"){
+				// hide enemy cards if not cheating:
+				if(!cheats_enabled){
+					show_top_card = false;
+				}
+			}else if(deck_id == "play_deck"){
+				show_top_card = false;
+			}
+			
+			// process decks:
+			
+			if(deck_id == "enemy_cards"){
+				
+			}else if(deck_id == "enemy_slot"){
+			
+			}else if(deck_id == "enemy_deck"){
+			
+			}else if(deck_id == "play_slot"){
+			
+			}else if(deck_id == "play_deck"){
+			
+			}else if(deck_id == "discard_deck"){
+			
+			}else if(deck_id == "my_slot"){
+			
+			}else if(deck_id == "my_deck"){
+			
+			}else if(deck_id == "my_cards"){
+			
+			}
+		}
+	}
+	
+	let BOARDxx = {
+		'enemy_cards': [[],[],[],[],[]], // 5
+		'enemy_slot': [[],[],[],[]], // 4
+		'enemy_deck': [], // 30
+		'play_slot': [[],[],[],[]], // 4
+		'play_deck': [], // 95
+		'discard_deck': [], // 0-165
+		'my_slot': [[],[],[],[]], // 4
+		'my_deck': [], // 30
+		'my_cards': [[],[],[],[],[]], // 5
+	};
+}
 
 
 
@@ -244,7 +404,7 @@ function new_game(){
 	
 	fill_deck("enemy_cards", BOARD.enemy_cards);
 	fill_deck("enemy_slot", ["", "", "", "", "enemydeck"]);
-	fill_deck("play_slot", ["", "", "", "", "gamedeck"]);
+	fill_deck("play_slot", ["", "", "", "", "playdeck"]);
 	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
 	fill_deck("my_cards", BOARD.my_cards);
 }
@@ -260,7 +420,7 @@ function clear_game(){
 	
 	fill_deck("enemy_cards", ["", "", "", "", ""]);
 	fill_deck("enemy_slot", ["", "", "", "", "enemydeck"]);
-	fill_deck("play_slot", ["", "", "", "", "gamedeck"]);
+	fill_deck("play_slot", ["", "", "", "", "playdeck"]);
 	fill_deck("my_slot", ["", "", "", "", "mydeck"]);
 	fill_deck("my_cards", ["", "", "", "", ""]);
 }
@@ -298,7 +458,7 @@ function move_card(cur){
 		BOARD[to_key][prev.sub_index].push(picked_card);
 	}
 	
-	console.log(BOARD);
+	//console.log(BOARD);
 	
 }
 
@@ -329,15 +489,15 @@ $(document).on("click", ".card", function(e){
 				console.log("card");
 			}
 			
-			if(prev_selection.deck_id != "-1"){
-				$("#"+prev_selection.unique_id).removeClass("selected");
-			}
+			//if(prev_selection.deck_id != "-1"){
+			//	$("#"+prev_selection.unique_id).removeClass("selected");
+			//}
 			
 			
 			
 			let deck_id = $(this).data("deck");
-			console.log("BOARD[deck_id] = ");
-			console.log(BOARD[deck_id]);
+			//console.log("BOARD[deck_id] = ");
+			//console.log(BOARD[deck_id]);
 			
 			let card_index = $(this).data("index");
 			let unique_id = deck_id+"_"+card_index;
@@ -346,6 +506,7 @@ $(document).on("click", ".card", function(e){
 			let array_name = "";
 			
 			let valid_move = false;
+
 			
 			if(deck_id == "my_slot"){
 				if(card_index <= 3){
@@ -378,6 +539,9 @@ $(document).on("click", ".card", function(e){
 				}
 			}
 			
+			
+			
+			
 			let cur_selection = {
 				'deck_id': deck_id, 
 				'card_index': card_index, 
@@ -385,6 +549,24 @@ $(document).on("click", ".card", function(e){
 				'sub_index': sub_index, 
 				'array_name': array_name,
 			};
+			
+			
+			if(source_exists){
+				// if tried to move from same deck to same deck, dont allow:
+				if(prev_selection.array_name == cur_selection.array_name){
+					valid_move = false;
+				}
+				// if tried to move from 
+				if(cur_selection.array_name != "play_slot"){
+					valid_move = false;
+				}
+				/*
+				phases:
+				1. put cards from (my_deck | my_cards | my_slot) to play_slot (in that priority).
+				2. put card from my_cards to my_slot & fill hand.
+				
+				*/
+			}
 			
 			/*
 function clear_board(){
@@ -402,61 +584,57 @@ function clear_board(){
 }
 			*/
 			
-			/*
-			
-			let move_possible = false;
-			
-			function is_move_possible(cur_selection){
-				
-				let valid_prev_sel = false;
-				let valid_cur_sel = false;
-				
-				if(prev_selection.deck_id == "my_slot"){
-					if(prev_selection.card_index <= 3){
-						if(BOARD.my_slot[prev_selection.card_index].length > 0){
-							valid_prev_sel = true;
-						}
-					}else{
-						if(BOARD.my_deck.length > 0){
-							valid_prev_sel = true;
-						}
-					}
-				}
-				
-				if(cur_selection.deck_id == "my_slot"){
-					if(cur_selection.card_index <= 3){
-						if(BOARD.my_slot[cur_selection.card_index].length > 0){
-							valid_cur_sel = true;
-						}
-					}else{
-						if(BOARD.my_deck.length > 0){
-							valid_cur_sel = true;
-						}
-					}
-				}
-				
-				if(valid_prev_sel){
-				
-				}
+			if(prev_selection.unique_id != -1){
+				$("#"+prev_selection.unique_id).removeClass("selected");
 			}
-			*/
 			
 
 			// if valid selection previously:
 			if(valid_move){
 				console.log("valid_move");
-				move_card(cur_selection);
+				//move_card(cur_selection);
 				//BOARD[deck_id][card_index].push();
+
+
+				
+				if(!source_exists){
+					console.log("source_exists = false");
+					$(this).addClass("selected");
+					source_exists = true;
+					// do nothing but select the card.
+					
+				}else{
+					// handle card movement here:
+					console.log("source_exists = true");
+					
+					$("#"+cur_selection.unique_id).removeClass("selected");
+					
+					
+					if(prev_selection.unique_id != cur_selection.unique_id){
+						// handle move only if different slot selected:
+						
+					}else{
+						// do nothing if same card selected.
+					}
+					
+					// reset selection nevertheless:
+					reset_selection();
+					
+					source_exists = false;
+				}
 			}else{
 				console.log("invalid_move");
+				source_exists = true;
 			}
 			
+			
+	
+			
 			prev_selection = cur_selection;
-			console.log(prev_selection);
-			$(this).addClass("selected");
+			//console.log(prev_selection);
+			
 			play_sound("click");
-			
-			
+
 			
 		}
 	}
