@@ -50,16 +50,28 @@ html, body {
 	margin-left:0px;
 }
 
+/*
+
+.saturate { filter: saturate(3); }
+.grayscale { filter: grayscale(100%); }
+.contrast { filter: contrast(160%); }
+.brightness { filter: brightness(0.25); }
+.blur { filter: blur(3px); }
+.invert { filter: invert(100%); }
+.sepia { filter: sepia(100%); }
+.huerotate { filter: hue-rotate(180deg); }
+.rss.opacity { filter: opacity(50%); }
+*/
 
 
 .card:hover {
-	opacity:0.9;
+	filter: brightness(0.8);
 }
 .card.selected {
-	opacity:0.75;
+	filter: brightness(0.6);
 }
 .card.selected:hover {
-	opacity:0.65;
+	filter: brightness(0.5);
 }
 
 .card.empty {
@@ -70,6 +82,7 @@ html, body {
 .card.empty:hover {
 	background-color:rgba(166,100,0, 0.35);
 	border-color:rgba(255,255,128, 0.4);
+	opacity:0.7;
 }
 
 .card.is_deck {
