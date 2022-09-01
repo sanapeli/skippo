@@ -27,7 +27,7 @@
 	
 	<!-- remember to increase xxxxxxxx and x when something changes in css. -->
 	<link type="text/css" href="style.css?xxxxxxxx=7" rel="Stylesheet" />
-	<link type="text/css" href="cards_inline.css?x=5" rel="Stylesheet" />
+	<link type="text/css" href="cards_inline.css?x=6" rel="Stylesheet" />
 </head>
 <body>
 
@@ -191,17 +191,17 @@ function new_deck(total_jokers, total_rulecards, kings_as_jokers){
 	for(let s = 1; s <= 4; s++){
 		for(let i = 1; i <= 13; i++){
 			if(i == 13 && kings_as_jokers){
-				deck.push("joker");
+				deck.push("joker2");
 			}else{
 				deck.push("c"+s+"_"+i);
 			}
 		}
 	}
 	for(let i = 0; i < total_jokers; i++){
-		deck.push("joker");
+		deck.push("joker2");
 	}
 	for(let i = 0; i < total_rulecards; i++){
-		deck.push("rulecard");
+		deck.push("joker3");
 	}
 	return deck;
 }
@@ -737,8 +737,6 @@ $(document).ready(function(){
 	SCREEN_W = $(window).width();
 	SCREEN_H = $(window).height();
 	console.log(SCREEN_W+"x"+SCREEN_H);
-
-	console.log("game height: "+$("#game").outerHeight());
 
 	//generate_images(); // creates base64 encoded image data classes.
 

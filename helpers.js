@@ -103,8 +103,9 @@ function generate_images(){
 	
 	let imgs = [];	
 	imgs.push(["backside", "back"]);
-	imgs.push(["joker", "joker"]);
-	imgs.push(["rulecard", "rulecard"]);
+	imgs.push(["joker1", "joker"]);
+	imgs.push(["joker2", "joker_king"]);
+	imgs.push(["joker3", "rulecard"]);
 	for(let s = 1; s <= 4; s++){
 		for(let i = 1; i <= 13; i++){
 			let card_id = s+"_"+i;
