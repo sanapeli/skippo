@@ -27,7 +27,7 @@
 	
 	<!-- remember to increase xxxxxxxx and x when something changes in css. -->
 	<link type="text/css" href="style.css?xxxxxxxx=7" rel="Stylesheet" />
-	<link type="text/css" href="cards_inline.css?x=3" rel="Stylesheet" />
+	<link type="text/css" href="cards_inline.css?x=5" rel="Stylesheet" />
 </head>
 <body>
 
@@ -177,12 +177,15 @@ let BOARD = {
 
 
 
-function new_deck(total_jokers, kings_as_jokers){
+function new_deck(total_jokers, total_rulecards, kings_as_jokers){
 	if(typeof kings_as_jokers === "undefined"){
 		kings_as_jokers = false;
 	}
 	if(typeof total_jokers === "undefined"){
-		total_jokers = 3;
+		total_jokers = 2;
+	}
+	if(typeof total_rulecards === "undefined"){
+		total_rulecards = 1;
 	}
 	let deck = [];
 	for(let s = 1; s <= 4; s++){
@@ -197,15 +200,19 @@ function new_deck(total_jokers, kings_as_jokers){
 	for(let i = 0; i < total_jokers; i++){
 		deck.push("joker");
 	}
+	for(let i = 0; i < total_rulecards; i++){
+		deck.push("rulecard");
+	}
 	return deck;
 }
 
 
 function create_playing_deck(){
 	// 3 decks for skipbo:
-	let d1 = new_deck(3, true);
-	let d2 = new_deck(3, true);
-	let d3 = new_deck(3, true);
+	let kings_as_jokers = true;
+	let d1 = new_deck(2, 1, kings_as_jokers);
+	let d2 = new_deck(2, 1, kings_as_jokers);
+	let d3 = new_deck(2, 1, kings_as_jokers);
 	
 	return d1.concat(d2).concat(d3);
 }
