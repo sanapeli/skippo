@@ -54,8 +54,7 @@ html, body {
 
 .card.empty {
 	border-radius:4px;
-	background-color:rgba(166,100,0, 0.15);
-	border-color:rgba(255,255,128, 0.2);
+	background-color:rgba(166,100,0, 0.25);
 }
 
 .card.empty:hover {
