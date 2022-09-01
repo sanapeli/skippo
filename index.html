@@ -26,7 +26,7 @@
 	<script src="helpers.js"></script>
 	
 	<!-- remember to increase xxxxxxxx and x when something changes in css. -->
-	<link type="text/css" href="style.css?xxxxxxxx=1" rel="Stylesheet" />
+	<link type="text/css" href="style.css?xxxxxxxx=2" rel="Stylesheet" />
 	<link type="text/css" href="cards_inline.css?x=1" rel="Stylesheet" />
 </head>
 <body>
@@ -40,6 +40,9 @@
 	min-height:116px;
 	
 	margin-bottom:10px;
+}
+.row:last-child {
+	margin-bottom:0px;
 }
 .deck {
 	-border:1px solid yellow;
@@ -73,43 +76,19 @@
 .handcards {
 	margin-right:42px;
 }
-
+.handcards .card {
+	
+}
 </style>
-
-<script>
-/*
-
-<div id="game" class="noselect"><!--
-<!----><div class="row"><!--
-<!----><!----><div id="enemy_cards" class="cardbox handcards"></div><!--
-<!----></div><!--
-<!----><div class="row"><!--
-<!----><!----><div id="enemy_slot" class="cardbox"></div><!--
-<!----><!----><div id="enemy_deck" class="deck"></div><!--
-<!----></div><!--
-<!----><div class="row"><!--
-<!----><!----><div id="play_slot" class="cardbox"></div><!--
-<!----><!----><div id="discard_deck" class="deck"></div><!--
-<!----><!----><div id="play_deck" class="deck"></div><!--
-<!----></div><!--
-<!----><div class="row"><!--
-<!----><!----><div id="my_slot" class="cardbox"></div><!--
-<!----><!----><div id="my_deck" class="deck"></div><!--
-<!----></div><!--
-<!----><div class="row"><!--
-<!----><!----><div id="my_cards" class="cardbox handcards"></div><!--
-<!----></div><!--
-<!----><!--
-<!----></div>
 
 
 <div id="game" class="noselect">
 	<div class="row">
-		<div id="enemy_cards" class="cardbox handcards"></div>
-	</div>
-	<div class="row">
 		<div id="enemy_slot" class="cardbox"></div>
 		<div id="enemy_deck" class="deck"></div>
+	</div>
+	<div class="row">
+		<div id="enemy_cards" class="cardbox handcards"></div>
 	</div>
 	<div class="row">
 		<div id="play_slot" class="cardbox"></div>
@@ -117,22 +96,21 @@
 		<div id="play_deck" class="deck"></div>
 	</div>
 	<div class="row">
+		<div id="my_cards" class="cardbox handcards"></div>
+	</div>
+	<div class="row">
 		<div id="my_slot" class="cardbox"></div>
 		<div id="my_deck" class="deck"></div>
 	</div>
-	<div class="row">
-		<div id="my_cards" class="cardbox handcards"></div>
-	</div>
 </div>
-*/
-</script>
-
-<div id="game" class="noselect"><div class="row"><div id="enemy_cards" class="cardbox handcards"></div></div><div class="row"><div id="enemy_slot" class="cardbox"></div><div id="enemy_deck" class="deck"></div></div><div class="row"><div id="play_slot" class="cardbox"></div><div id="discard_deck" class="deck"></div><div id="play_deck" class="deck"></div></div><div class="row"><div id="my_slot" class="cardbox"></div><div id="my_deck" class="deck"></div></div><div class="row"><div id="my_cards" class="cardbox handcards"></div></div></div>
 
 <xmp id="output" style="font-size:9px; display:none"></xmp>
 
 
 <script>
+
+let SCREEN_W = 0;
+let SCREEN_H = 0;
 
 /*
 for(let i = 0; i < 100; i++){
@@ -708,6 +686,12 @@ function update_ui(){
 
 $(document).ready(function(){
 	console.log("ready");
+
+	SCREEN_W = $(window).width();
+	SCREEN_H = $(window).height();
+	console.log(SCREEN_W+"x"+SCREEN_H);
+
+	console.log("game height: "+$("#game").outerHeight());
 
 	//generate_images(); // creates base64 encoded image data classes.
 
