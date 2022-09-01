@@ -26,7 +26,7 @@
 	<script src="helpers.js"></script>
 	
 	<!-- remember to increase xxxxxxxx and x when something changes in css. -->
-	<link type="text/css" href="style.css?xxxxxxxx=8" rel="Stylesheet" />
+	<link type="text/css" href="style.css?xxxxxxxx=9" rel="Stylesheet" />
 	<link type="text/css" href="cards_inline.css?x=7" rel="Stylesheet" />
 </head>
 <body>
@@ -510,7 +510,7 @@ function new_game(){
 	
 	// fill player slots (testing):
 	for(let i = 0; i < 4; i++){
-		let amount = 6;//ran(8+1)+1;
+		let amount = ran(7+1)+1;
 		for(let p = 0; p < amount; p++){
 			let card1 = get_card_from_deck();
 			BOARD.enemy_slot[i].push(card1);
