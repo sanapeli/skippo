@@ -7,7 +7,9 @@
 body, html {
 	background-color:black;
 	color:#FFFF88;
-	font:35px verdana;
+	font:0px verdana;
+	/* 0px required so inline-block padding doesnt change!! */
+	/* you must adjust each block font size to wanted size separately if text is used. */
 }
 
 
@@ -30,8 +32,11 @@ html, body {
 }
 
 .card {
+	border-radius:3px;
 	margin-left:6px;
 	display:inline-block;
+	font-size:0;
+	
 	background-size: 100% 100%;
 	cursor:pointer;
 	/* 80x116 is same aspect ratio as 200x290, and it gives whole numbers for dimensions */
@@ -39,6 +44,9 @@ html, body {
 	min-height:116px;
 }
 
+.card:first-child {
+	margin-left:0px;
+}
 
 
 
@@ -71,16 +79,21 @@ html, body {
 
 #game {
 	text-align:right;
-	padding:50px 0px 0px 0px;
+	padding:0px 0px 0px 0px;
+	position:absolute;
+	top:0;
+	right:0;
 	
 	background: rgb(0,0,0);
 	
-	//background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(101,0,177,1) 25%, rgba(255,0,0,1) 50%, rgba(112,0,0,1) 75%, rgba(0,0,0,1) 100%);
+	/*
+	background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(101,0,177,1) 25%, rgba(255,0,0,1) 50%, rgba(112,0,0,1) 75%, rgba(0,0,0,1) 100%);
+	animation: gradient 10s ease infinite;
+	*/
 	
 	background-size: 100% 50%;
 	background-position: 50% 50%;
 	
-	//animation: gradient 10s ease infinite;
 }
 
 
@@ -101,6 +114,8 @@ html, body {
 	//text-transform:uppercase;
 	text-align:center;
 	display:inline-block;
+	font-size:12px;
+	
 	background-color:#0d1940;
 	cursor:pointer;
 	color:#FFFFFF;
